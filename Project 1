@@ -1,0 +1,581 @@
+import java.util.*;
+
+public class FraudDetectionSystem {
+
+    // Data structure to store transaction history
+    static class Transaction {
+        String accountNumber;
+        double amount;
+        String date;
+        String type; // Deposit or Withdrawal
+
+        public Transaction(String accountNumber, double amount, String date, String type) {
+            this.accountNumber = accountNumber;
+            this.amount = amount;
+            this.date = date;
+            this.type = type;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("Account: %s, Amount: %.2f, Date: %s, Type: %s", 
+                                 accountNumber, amount, date, type);
+        }
+    }
+
+    // List of transactions
+    private static List<Transaction> transactions = new ArrayList<>();
+    private static Set<String> flaggedAccounts = new HashSet<>();
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("\n===== Fraud Detection System =====");
+            System.out.println("1. Add Transaction");
+            System.out.println("2. Check for Fraud");
+            System.out.println("3. View Flagged Accounts");
+            System.out.println("4. Exit");
+            System.out.print("Choose an option: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+
+            switch (choice) {
+                case 1:
+                    addTransaction(scanner);
+                    break;
+                case 2:
+                    detectFraud();
+                    break;
+                case 3:
+                    viewFlaggedAccounts();
+                    break;
+                case 4:
+                    System.out.println("Exiting the system. Goodbye!");
+                    scanner.close();
+                    System.exit(0);
+                    break;
+                default:
+                    System.out.println("Invalid choice! Please try again.");
+            }
+        }
+    }
+
+    private static void addTransaction(Scanner scanner) {
+        System.out.println("\n===== Add Transaction =====");
+        System.out.print("Enter Account Number: ");
+        String accountNumber = scanner.nextLine();
+        System.out.print("Enter Transaction Amount: ");
+        double amount = scanner.nextDouble();
+        scanner.nextLine(); // Consume newline
+        System.out.print("Enter Transaction Date (YYYY-MM-DD): ");
+        String date = scanner.nextLine();
+        System.out.print("Enter Transaction Type (Deposit/Withdrawal): ");
+        String type = scanner.nextLine();
+
+        Transaction transaction = new Transaction(accountNumber, amount, date, type);
+        transactions.add(transaction);
+        System.out.println("Transaction added successfully.");
+    }
+
+    private static void detectFraud() {
+        System.out.println("\n===== Fraud Detection =====");
+
+        // Define fraud detection thresholds
+        double largeTransactionThreshold = 10_000.0; // Large amount threshold
+        int frequentTransactionLimit = 5;           // Frequent transactions per day limit
+
+        // Map to count transactions per account per day
+        Map<String, Map<String, Integer>> transactionFrequency = new HashMap<>();
+
+        for (Transaction transaction : transactions) {
+            // Check for large transactions
+            if (transaction.amount > largeTransactionThreshold) {
+                System.out.println("Fraud Alert: Large transaction detected!");
+                System.out.println(transaction);
+                flaggedAccounts.add(transaction.accountNumber);
+            }
+
+            // Check for frequent transactions on the same day
+            transactionFrequency.putIfAbsent(transaction.accountNumber, new HashMap<>());
+            Map<String, Integer> dailyTransactions = transactionFrequency.get(transaction.accountNumber);
+            dailyTransactions.put(transaction.date, dailyTransactions.getOrDefault(transaction.date, 0) + 1);
+
+            if (dailyTransactions.get(transaction.date) > frequentTransactionLimit) {
+                System.out.println("Fraud Alert: Frequent transactions detected!");
+                System.out.println(transaction);
+                flaggedAccounts.add(transaction.accountNumber);
+            }
+        }
+
+        if (flaggedAccounts.isEmpty()) {
+            System.out.println("No fraudulent activities detected.");
+        }
+    }
+
+    private static void viewFlaggedAccounts() {
+        System.out.println("\n===== Flagged Accounts =====");
+        if (flaggedAccounts.isEmpty()) {
+            System.out.println("No accounts flagged for fraud.");
+        } else {
+            for (String account : flaggedAccounts) {
+                System.out.println("Flagged Account: " + account);
+            }
+        }
+    }
+}
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+class TourPackage {
+    private int id;
+    private String name;
+    private double price;
+    private int duration; // in days
+    private String type; // e.g., Adventure, Beach, Desert
+
+    public TourPackage(int id, String name, double price, int duration, String type) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+        this.duration = duration;
+        this.type = type;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    @Override
+    public String toString() {
+        return "ID: " + id + ", Name: " + name + ", Price: $" + price + ", Duration: " + duration + " days, Type: " + type;
+    }
+}
+
+public class TourPackageManagement {
+
+    private static List<TourPackage> packages = new ArrayList<>();
+
+    private static void initializePackages() {
+        packages.add(new TourPackage(1, "Beach Paradise", 500.0, 5, "Beach"));
+        packages.add(new TourPackage(2, "Mountain Adventure", 700.0, 7, "Adventure"));
+        packages.add(new TourPackage(3, "Desert Safari", 300.0, 3, "Desert"));
+        packages.add(new TourPackage(4, "Island Escape", 900.0, 10, "Beach"));
+    }
+
+    private static void displayAllPackages() {
+        System.out.println("Available Tour Packages:");
+        for (TourPackage tourPackage : packages) {
+            System.out.println(tourPackage);
+        }
+    }
+
+    private static void viewPackageById(int id) {
+        for (TourPackage tourPackage : packages) {
+            if (tourPackage.getId() == id) {
+                System.out.println("Package Details:");
+                System.out.println(tourPackage);
+                return;
+            }
+        }
+        System.out.println("Package with ID " + id + " not found.");
+    }
+
+    private static int getValidIntegerInput(Scanner scanner, String message) {
+        while (true) {
+            System.out.print(message);
+            if (scanner.hasNextInt()) {
+                return scanner.nextInt();
+            } else {
+                System.out.println("Invalid input. Please enter a valid number.");
+                scanner.next();
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        initializePackages();
+
+        while (true) {
+            System.out.println("\nMenu:");
+            System.out.println("1. View All Packages");
+            System.out.println("2. View Package by ID");
+            System.out.println("3. Exit");
+            int choice = getValidIntegerInput(scanner, "Enter your choice: ");
+
+            switch (choice) {
+                case 1:
+                    displayAllPackages();
+                    break;
+                case 2:
+                    int id = getValidIntegerInput(scanner, "Enter package ID: ");
+                    viewPackageById(id);
+                    break;
+                case 3:
+                    System.out.println("Exiting the program. Goodbye!");
+                    scanner.close();
+                    System.exit(0);
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+}
+import java.util.ArrayList;
+import java.util.Scanner;
+
+// Flight class
+class Flight {
+    private String flightNumber;
+    private String destination;
+    private String departure;
+    private int capacity;
+    private int bookedSeats;
+
+    public Flight(String flightNumber, String destination, String departure, int capacity) {
+        this.flightNumber = flightNumber;
+        this.destination = destination;
+        this.departure = departure;
+        this.capacity = capacity;
+        this.bookedSeats = 0;
+    }
+
+    // Getters
+    public String getFlightNumber() {
+        return flightNumber;
+    }
+
+    public String getDestination() {
+        return destination;
+    }
+
+    public String getDeparture() {
+        return departure;
+    }
+
+    public int getAvailableSeats() {
+        return capacity - bookedSeats;
+    }
+
+    // Book a seat
+    public boolean bookSeat() {
+        if (bookedSeats < capacity) {
+            bookedSeats++;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Flight Number: " + flightNumber + ", Destination: " + destination +
+                ", Departure: " + departure + ", Available Seats: " + getAvailableSeats();
+    }
+}
+
+// Passenger class
+class Passenger {
+    private String name;
+    private String passportNumber;
+
+    public Passenger(String name, String passportNumber) {
+        this.name = name;
+        this.passportNumber = passportNumber;
+    }
+
+    // Added getter method for name to use in booking confirmation
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "Passenger Name: " + name + ", Passport Number: " + passportNumber;
+    }
+}
+
+// Booking class
+class Booking {
+    private Passenger passenger;
+    private Flight flight;
+
+    public Booking(Passenger passenger, Flight flight) {
+        this.passenger = passenger;
+        this.flight = flight;
+    }
+
+    @Override
+    public String toString() {
+        return passenger.toString() + ", Flight: " + flight.getFlightNumber();
+    }
+}
+
+// AirlineReservationSystem class
+class AirlineReservationSystem {
+    private ArrayList<Flight> flights;
+    private ArrayList<Booking> bookings;
+
+    public AirlineReservationSystem() {
+        flights = new ArrayList<>();
+        bookings = new ArrayList<>();
+    }
+
+    // Add a flight
+    public void addFlight(Flight flight) {
+        flights.add(flight);
+    }
+
+    // List all flights
+    public void listFlights() {
+        if (flights.isEmpty()) {
+            System.out.println("No flights available.");
+        } else {
+            for (Flight flight : flights) {
+                System.out.println(flight);
+            }
+        }
+    }
+
+    // Find a flight by flight number
+    public Flight findFlightByNumber(String flightNumber) {
+        for (Flight flight : flights) {
+            if (flight.getFlightNumber().equalsIgnoreCase(flightNumber)) {
+                return flight;
+            }
+        }
+        return null;
+    }
+
+    // Book a flight
+    public void bookFlight(Passenger passenger, String flightNumber) {
+        Flight flight = findFlightByNumber(flightNumber);
+        if (flight != null) {
+            if (flight.bookSeat()) {
+                Booking booking = new Booking(passenger, flight);
+                bookings.add(booking);
+                System.out.println("Booking successful for " + passenger.getName());
+            } else {
+                System.out.println("No available seats on this flight.");
+            }
+        } else {
+            System.out.println("Flight not found.");
+        }
+    }
+
+    // List all bookings
+    public void listBookings() {
+        if (bookings.isEmpty()) {
+            System.out.println("No bookings available.");
+        } else {
+            for (Booking booking : bookings) {
+                System.out.println(booking);
+            }
+        }
+    }
+}
+
+// Main class
+public class AirlineReservationSystemApp {
+    public static void main(String[] args) {
+        AirlineReservationSystem system = new AirlineReservationSystem();
+        Scanner scanner = new Scanner(System.in);
+
+        // Preload flights
+        system.addFlight(new Flight("A101", "New York", "Los Angeles", 100));
+        system.addFlight(new Flight("B202", "London", "Paris", 50));
+        system.addFlight(new Flight("C303", "Tokyo", "Seoul", 75));
+
+        while (true) {
+            System.out.println("\nAirline Reservation System:");
+            System.out.println("1. List Flights");
+            System.out.println("2. Book a Flight");
+            System.out.println("3. View Bookings");
+            System.out.println("4. Exit");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    system.listFlights();
+                    break;
+                case 2:
+                    System.out.print("Enter passenger name: ");
+                    scanner.nextLine(); // Consume newline
+                    String name = scanner.nextLine();
+                    System.out.print("Enter passport number: ");
+                    String passportNumber = scanner.nextLine();
+                    System.out.print("Enter flight number: ");
+                    String flightNumber = scanner.nextLine();
+
+                    Passenger passenger = new Passenger(name, passportNumber);
+                    system.bookFlight(passenger, flightNumber);
+                    break;
+                case 3:
+                    system.listBookings();
+                    break;
+                case 4:
+                    System.out.println("Exiting system. Goodbye!");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+}
+import java.util.*;
+
+class Student {
+    private int id;
+    private String name;
+    private int totalClasses;
+    private int attendedClasses;
+
+    public Student(int id, String name) {
+        this.id = id;
+        this.name = name;
+        this.totalClasses = 0;
+        this.attendedClasses = 0;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void markAttendance(boolean isPresent) {
+        totalClasses++;
+        if (isPresent) {
+            attendedClasses++;
+        }
+    }
+
+    public double getAttendancePercentage() {
+        if (totalClasses == 0) return 0;
+        return (attendedClasses / (double) totalClasses) * 100;
+    }
+
+    public void displayAttendance() {
+        System.out.println("ID: " + id + ", Name: " + name);
+        System.out.println("Total Classes: " + totalClasses + ", Attended: " + attendedClasses);
+        System.out.printf("Attendance Percentage: %.2f%%\n", getAttendancePercentage());
+    }
+}
+
+public class AttendanceManagementSystem {
+    private Map<Integer, Student> students = new HashMap<>();
+
+    public void addStudent(int id, String name) {
+        if (students.containsKey(id)) {
+            System.out.println("Student with this ID already exists!");
+        } else {
+            students.put(id, new Student(id, name));
+            System.out.println("Student added successfully.");
+        }
+    }
+
+    public void markAttendance(int id, boolean isPresent) {
+        Student student = students.get(id);
+        if (student != null) {
+            student.markAttendance(isPresent);
+            System.out.println("Attendance marked for " + student.getName());
+        } else {
+            System.out.println("Student not found!");
+        }
+    }
+
+    public void displayAllAttendance() {
+        if (students.isEmpty()) {
+            System.out.println("No students in the system.");
+            return;
+        }
+        for (Student student : students.values()) {
+            student.displayAttendance();
+            System.out.println("-------------------------");
+        }
+    }
+
+    public void displayStudentAttendance(int id) {
+        Student student = students.get(id);
+        if (student != null) {
+            student.displayAttendance();
+        } else {
+            System.out.println("Student not found!");
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        AttendanceManagementSystem system = new AttendanceManagementSystem();
+        
+        while (true) {
+            System.out.println("\n--- Attendance Management System ---");
+            System.out.println("1. Add Student");
+            System.out.println("2. Mark Attendance");
+            System.out.println("3. Display All Attendance");
+            System.out.println("4. Display Student Attendance");
+            System.out.println("5. Exit");
+            System.out.print("Choose an option: ");
+            
+            int choice = scanner.nextInt();
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter Student ID: ");
+                    int id = scanner.nextInt();
+                    scanner.nextLine(); // Consume newline
+                    System.out.print("Enter Student Name: ");
+                    String name = scanner.nextLine();
+                    system.addStudent(id, name);
+                    break;
+
+                case 2:
+                    System.out.print("Enter Student ID: ");
+                    int studentId = scanner.nextInt();
+                    System.out.print("Is the student present? (true/false): ");
+                    boolean isPresent = scanner.nextBoolean();
+                    system.markAttendance(studentId, isPresent);
+                    break;
+
+                case 3:
+                    system.displayAllAttendance();
+                    break;
+
+                case 4:
+                    System.out.print("Enter Student ID: ");
+                    int searchId = scanner.nextInt();
+                    system.displayStudentAttendance(searchId);
+                    break;
+
+                case 5:
+                    System.out.println("Exiting the system.");
+                    scanner.close();
+                    return;
+
+                default:
+                    System.out.println("Invalid choice! Please try again.");
+            }
+        }
+    }
+}
